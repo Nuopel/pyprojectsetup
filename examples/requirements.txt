@@ -1,0 +1,6 @@
+numpy
+../../pyprojectsetup
+logging
+ast
+pathlib
+requests
