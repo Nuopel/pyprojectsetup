@@ -179,7 +179,7 @@ def get_unique_packages_from_filepath(filepath, flag_exclude=True, additional_ex
 
     unique_packages = get_unique_packages(results)
 
-    exclude_packages = ['unittest']# ['abc', 'math']
+    exclude_packages = ['unittest','ast']# list of known packages from native python that should be excluded
     if additional_exclude_packages:
         exclude_packages.extend(additional_exclude_packages)
 
