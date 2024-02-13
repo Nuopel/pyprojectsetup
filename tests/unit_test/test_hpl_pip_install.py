@@ -111,9 +111,10 @@ class TestPipInstall(unittest.TestCase):
 
 
 class TestCloneAndInstallPackage(TestCase):
+    @patch('shutil.rmtree')
     @patch('pyprojectsetup.hpl_pip_install.exec_command')
     @patch('pyprojectsetup.hpl_pip_install.pip_install')
-    def test_clone_and_install_without_branch(self, mock_pip_install, mock_exec):
+    def test_clone_and_install_without_branch(self, mock_pip_install, mock_exec, mock_rmtree):
         repository_url = "https://github.com/example/repo.git"
         mock_pip_install.return_value = True
 
@@ -122,16 +123,26 @@ class TestCloneAndInstallPackage(TestCase):
         mock_exec.assert_called_once_with(f"git clone {repository_url}")
         mock_pip_install.assert_called_once_with(f"./repo")
 
-    @patch('pyprojectsetup.hpl_pip_install.exec_command')
+        # Use Path to construct the expected path for platform-independent comparison
+        expected_path = Path('./repo')  # This will be a WindowsPath on Windows and a PosixPath on Unix-like systems
+        mock_rmtree.assert_called_once_with(expected_path)
+    @patch('shutil.rmtree')
     @patch('pyprojectsetup.hpl_pip_install.pip_install')
-    def test_clone_and_install_with_branch(self,  mock_pip_install, mock_exec):
-        pair = ("https://github.com/example/repo.git", "develop")
+    @patch('pyprojectsetup.hpl_pip_install.exec_command')
+    def test_clone_and_install_with_branch(self, mock_exec, mock_pip_install, mock_rmtree):
         mock_pip_install.return_value = True
+        pair = ("https://github.com/example/repo.git", "develop")
 
-        self.assertTrue(clone_and_install_package(pair))
+        # Assuming clone_and_install_package is correctly defined to handle these arguments
+        result = clone_and_install_package(pair, dev_mode=False)
 
+        self.assertTrue(result)
         mock_exec.assert_called_once_with("git clone https://github.com/example/repo.git --branch develop")
-        mock_pip_install.assert_called_once_with(f"./repo")
+        mock_pip_install.assert_called_once_with("./repo")
+
+        # Use Path to construct the expected path for platform-independent comparison
+        expected_path = Path('./repo')  # This will be a WindowsPath on Windows and a PosixPath on Unix-like systems
+        mock_rmtree.assert_called_once_with(expected_path)
 
     @patch('pyprojectsetup.hpl_pip_install.exec_command')  # Adjust the import path as necessary
     @patch('pyprojectsetup.hpl_pip_install.pip_install')
@@ -144,7 +155,6 @@ class TestCloneAndInstallPackage(TestCase):
 
         mock_exec.assert_called_once_with(f"git clone {repository_url}")
         mock_pip_install.assert_called_once_with("./repo", '-e')
-        mock_rmtree.assert_called_once_with(Path("repo"))
 
 class TestInstallRequirementsOneAtTime(unittest.TestCase):
 
