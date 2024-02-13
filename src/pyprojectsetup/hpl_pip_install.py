@@ -174,15 +174,71 @@ def clone_and_install_package(pair, dev_mode=False):
     if dev_mode :
         if pip_install(f"./{package_name}", '-e'):
             print(f"Installed package: {package_name}, dev mode")
-
-        # Remove the cloned directory using pathlib for cross-platform compatibility
-        shutil.rmtree(Path(package_name))
-        print(f"Removed folder: {package_name}")
-
     else:
         if pip_install(f"./{package_name}"):
             print(f"Installed package: {package_name}")
+        # Remove the cloned directory using pathlib for cross-platform compatibility
+        shutil.rmtree(Path(package_name))
+        print(f"Removed folder: {package_name}")
     return True
+
+
+def install_requirements_network_onepackage_at_a_time(requirements_path, dev_mode=False):
+    """
+    Install packages from a requirements.txt file one package at a time.
+
+    :param requirements_path: Path to the requirements.txt file
+    """
+    # Set up logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)
+
+    try:
+        # Validate requirements file path
+        if not os.path.isfile(requirements_path):
+            raise FileNotFoundError(f"Requirements file not found at {requirements_path}")
+
+        # Open and read the requirements.txt file
+        with open(requirements_path, 'r') as file:
+            packages = [package.strip() for package in file.readlines() if package.strip()]
+
+        # Lists to store successful and unsuccessful installations
+        successful_installs = []
+        unsuccessful_installs = []
+
+        # Install each package using pip
+        for package in packages:
+            try:
+                clone_and_install_package(package, dev_mode=dev_mode)
+                successful_installs.append(package)
+                logger.info(f"Successfully installed package: {package}")
+            except subprocess.CalledProcessError:
+                unsuccessful_installs.append(package)
+                logger.error(f"Failed to install package: {package}")
+
+        # Print summary
+        logger.info("Installation summary:")
+        logger.info(f"Total packages installed: {len(successful_installs)}")
+        if successful_installs:
+            logger.info("Successfully installed packages:")
+            for package in successful_installs:
+                logger.info(package)
+        if unsuccessful_installs:
+            logger.error("Failed to install the following packages:")
+            for package in unsuccessful_installs:
+                # Attempt to import the package
+                try:
+                    package_name = package.split('==')[0]  # Extract package name, ignore version
+                    importlib.import_module(package_name)
+                    logger.info(f"{package} but it is already present in the Python environment.")
+                except ImportError:
+                    # If import fails, then the package is genuinely missing
+                    logger.error(package)
+
+    except FileNotFoundError as e:
+        logger.error(e)
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
 
 if __name__ == '__main__':
     #%% install requirements.txt
