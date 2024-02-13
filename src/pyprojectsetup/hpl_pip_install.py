@@ -207,7 +207,7 @@ def clone_and_install_package(pair, dev_mode=False, destination_folder=False):
     return True
 
 
-def install_requirements_network_onepackage_at_a_time(requirements_path, dev_mode=False):
+def install_requirements_network_onepackage_at_a_time(requirements_path, dev_mode=False, destination_folder=False):
     """
     Install packages from a requirements.txt file one package at a time.
 
@@ -233,7 +233,7 @@ def install_requirements_network_onepackage_at_a_time(requirements_path, dev_mod
         # Install each package using pip
         for package in packages:
             try:
-                clone_and_install_package(package, dev_mode=dev_mode)
+                clone_and_install_package(package, dev_mode=dev_mode, destination_folder=destination_folder)
                 successful_installs.append(package)
                 logger.info(f"Successfully installed package: {package}")
             except subprocess.CalledProcessError:
