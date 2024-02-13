@@ -103,5 +103,30 @@ def setup_python_virtual_env(venv_path="venv"):
                 logging.info(f"Virtual environment setup completed successfully using {selected_python}.")
                 print('\n You might want to select venv as your virtual environment in pycharm in interpreter settings for your current python project ')
 
+def setup_python_virtual_env(venv_path="./venv"):
+    """Setup Python virtual environment with enhanced logging, user feedback, and an option for manual installation."""
+    logging.info("Checking for existing Python virtual environment.")
+    if check_virtual_env(venv_path=venv_path):
+        print(f"Virtual environment already exists at '{venv_path}'.")
+    else:
+        print(f"No virtual environment found at the {venv_path} location.")
+        user_choice = input("Do you want to install the virtual environment manually or use the automatic setup? (manual/auto): ").strip().lower()
+        if user_choice == "auto":
+            print("Proceeding with automatic virtual environment setup...")
+            pythons = list_pythons()
+            selected_python = prompt_installation(pythons)
+            if selected_python:
+                if create_virtual_env(selected_python, venv_path):
+                    print("Virtual environment created successfully.")
+                    print_activation_instructions(venv_path)
+                    logging.info(f"Virtual environment setup completed successfully using {selected_python}.")
+        elif user_choice == "manual":
+            print("Please create the virtual environment manually.")
+            print("After creating it, you can activate it using the instructions provided by your terminal or command prompt.")
+            logging.info("User opted for manual virtual environment setup.")
+        else:
+            print("Invalid option selected. Exiting setup process.")
+            logging.info("Invalid user input for virtual environment setup option.")
+
 if __name__ == "__main__":
     setup_python_virtual_env()
