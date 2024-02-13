@@ -147,7 +147,9 @@ def pip_install(package, *pip_args, flag_verbose=False):
         print(f'Error during installation: {e}')
         return False
 
-def clone_and_install_package(pair, dev_mode=False):
+
+
+def clone_and_install_package(pair, dev_mode=False, destination_folder=False):
     # Determine if pair is a tuple of (repository_url, branch_name) or just repository_url
     if isinstance(pair, tuple) and len(pair) == 2:
         repository_url, branch_name = pair
@@ -158,11 +160,19 @@ def clone_and_install_package(pair, dev_mode=False):
     print(f"Attempt to clone package: {repository_url}")
 
     try:
-        # Clone the repository with or without branch name
+        # Clone the repository with or without branch name and into the specified destination folder
         if branch_name:
-            exec_command(f"git clone {repository_url} --branch {branch_name}")
+            if destination_folder:
+                exec_command(f"git clone {repository_url} --branch {branch_name} {destination_folder}")
+            else:
+                exec_command(f"git clone {repository_url} --branch {branch_name}")
+
         else:
-            exec_command(f"git clone {repository_url}")
+            if destination_folder:
+                exec_command(f"git clone {repository_url} {destination_folder}")
+            else:
+                exec_command(f"git clone {repository_url}")
+
     except Exception as e:
         print(f"Failed to clone package: {repository_url}, Error: {e}")
         return False
@@ -172,13 +182,27 @@ def clone_and_install_package(pair, dev_mode=False):
 
     # Install the package
     if dev_mode :
-        if pip_install(f"./{package_name}", '-e'):
-            print(f"Installed package: {package_name}, dev mode")
+        if destination_folder:
+            if pip_install(f"{destination_folder}/{package_name}", '-e'):
+                print(f"Installed package: {package_name}, dev mode")
+        else:
+            if pip_install(f"./{package_name}", '-e'):
+                print(f"Installed package: {package_name}, dev mode")
+
     else:
-        if pip_install(f"./{package_name}"):
-            print(f"Installed package: {package_name}")
+        if destination_folder:
+            if pip_install(f"{destination_folder}/{package_name}"):
+                print(f"Installed package: {package_name}")
+        else:
+            if pip_install(f"./{package_name}"):
+                print(f"Installed package: {package_name}")
+
         # Remove the cloned directory using pathlib for cross-platform compatibility
-        shutil.rmtree(Path(package_name))
+        if destination_folder:
+            shutil.rmtree(Path(f"{destination_folder}/{package_name}"))
+        else:
+            shutil.rmtree(Path(f"./{package_name}"))
+
         print(f"Removed folder: {package_name}")
     return True
 
