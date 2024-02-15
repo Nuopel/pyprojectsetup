@@ -158,12 +158,13 @@ def clone_and_install_package(pair, dev_mode=False, destination_folder=False):
         branch_name = None  # This indicates no branch was explicitly provided
 
     print(f"Attempt to clone package: {repository_url}")
-
+    # Use pathlib to handle the path extraction for package name
+    package_name = Path(repository_url.split('/')[-1]).stem
     try:
         # Clone the repository with or without branch name and into the specified destination folder
         if branch_name:
             if destination_folder:
-                exec_command(f"git clone {repository_url} --branch {branch_name} {destination_folder}")
+                exec_command(f"git clone {repository_url} --branch {branch_name} {destination_folder}/{package_name}")
             else:
                 exec_command(f"git clone {repository_url} --branch {branch_name}")
 
@@ -177,8 +178,7 @@ def clone_and_install_package(pair, dev_mode=False, destination_folder=False):
         print(f"Failed to clone package: {repository_url}, Error: {e}")
         return False
 
-    # Use pathlib to handle the path extraction for package name
-    package_name = Path(repository_url.split('/')[-1]).stem
+
 
     # Install the package
     if dev_mode :
