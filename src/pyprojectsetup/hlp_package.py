@@ -179,7 +179,8 @@ def get_unique_packages_from_filepath(filepath, flag_exclude=True, additional_ex
 
     unique_packages = get_unique_packages(results)
 
-    exclude_packages = ['unittest','ast']# list of known packages from native python that should be excluded
+    exclude_packages = ['unittest','ast','os', 'math', 'cmath', 'glob', 'concurrent', 're', 'shutil', 'subprocess',
+                        'sys'] # list of known packages from native python that should be excluded
     if additional_exclude_packages:
         exclude_packages.extend(additional_exclude_packages)
 
@@ -205,7 +206,7 @@ def categorize_packages(package_names, filepath = '.'):
     undetermined_packages = []
 
     # Check for local Python files first to reduce unnecessary PyPI checks
-    all_files = {f[:-3] for f in os.listdir(filepath) if os.path.isfile(f) and f.endswith('.py')}
+    all_files = {f[:-3] for f in os.listdir(filepath) if os.path.isfile(filepath+f) and f.endswith('.py')}
     localpy_packages = [name for name in package_names if name in all_files]
 
     # Prepare a list for PyPI checks excluding those already found locally
