@@ -170,7 +170,7 @@ def clone_and_install_package(pair, dev_mode=False, destination_folder=False):
 
         else:
             if destination_folder:
-                exec_command(f"git clone {repository_url} {destination_folder}")
+                exec_command(f"git clone {repository_url} {destination_folder}/{package_name}")
             else:
                 exec_command(f"git clone {repository_url}")
 
