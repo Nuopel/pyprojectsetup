@@ -199,13 +199,13 @@ def check_pypi(package_name):
     except requests.RequestException:
         return package_name, False
 
-def categorize_packages(package_names):
+def categorize_packages(package_names, filepath = '.'):
     """Categorize packages into PyPI, local Python files, or undetermined."""
     pypi_packages = []
     undetermined_packages = []
 
     # Check for local Python files first to reduce unnecessary PyPI checks
-    all_files = {f[:-3] for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.py')}
+    all_files = {f[:-3] for f in os.listdir(filepath) if os.path.isfile(f) and f.endswith('.py')}
     localpy_packages = [name for name in package_names if name in all_files]
 
     # Prepare a list for PyPI checks excluding those already found locally
