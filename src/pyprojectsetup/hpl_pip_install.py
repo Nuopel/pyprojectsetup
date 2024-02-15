@@ -264,6 +264,26 @@ def install_requirements_network_onepackage_at_a_time(requirements_path, dev_mod
     except Exception as e:
         logger.error(f"An error occurred: {e}")
 
+def remove_if_empty(directory):
+    """
+    Removes the specified directory if it exists and is empty.
+
+    :param directory: Path to the directory to be checked and potentially removed.
+    """
+    # Check if the directory exists
+    if os.path.exists(directory) and os.path.isdir(directory):
+        # Check if the directory is empty
+        if not os.listdir(directory):
+            try:
+                os.rmdir(directory)
+                print(f"The directory '{directory}' was empty and has been removed.")
+            except OSError as e:
+                print(f"Failed to remove '{directory}': {e}")
+        else:
+            print(f"The directory '{directory}' is not empty.")
+    else:
+        print(f"The directory '{directory}' does not exist.")
+
 if __name__ == '__main__':
     #%% install requirements.txt
     # Example usage
